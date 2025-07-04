@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+
+<html data-theme="default" lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ADOL Logistics Corp</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+    /* --- Variables de Tema --- */
+    :root {
+      /* Tema por Defecto (Adol Blue) */
+      --color-bg-primary: #f9fafb;
+      --color-bg-secondary: #ffffff;
+      --color-bg-accent: #e6f0ff;
+      --color-text-primary: #1f2937;
+      --color-text-secondary: #4b5563;
+      --color-text-light: #ffffff;
+      --color-border-primary: #e5e7eb;
+      --color-border-accent: #eee;
+      --color-shadow: rgba(0,0,0,0.05);
+
+      --color-primary: #005A9C; /* Adol Blue */
+      --color-accent: #F58220; /* Adol Orange */
+      --color-danger: #dc2626;
+      --color-success: #16a34a;
+
+      --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    [data-theme="neon"] {
+      --color-bg-primary: #0d1117; 
+      --color-bg-secondary: #161b22;
+      --color-bg-accent: #21262d;
+      --color-text-primary: #c9d1d9;
+      --color-text-secondary: #8b949e;
+      --color-text-light: #f0f6fc;
+      --color-border-primary: #30363d;
+      --color-border-accent: #30363d;
+      --color-shadow: rgba(0,0,0,0.2);
+
+      --color-primary: #22d3ee; /* cyan-400 */
+      --color-accent: #f472b6; /* pink-400 */
+      --color-danger: #f87171; /* red-400 */
+      --color-success: #4ade80; /* green-400 */
+    }
+
+    [data-theme="forest"] {
+      --color-bg-primary: #1a202c;
+      --color-bg-secondary: #2d3748;
+      --color-bg-accent: #4a5568;
+      --color-text-primary: #e2e8f0;
+      --color-text-secondary: #a0aec0;
+      --color-text-light: #f7fafc;
+      --color-border-primary: #4a5568;
+      --color-border-accent: #4a5568;
+      --color-shadow: rgba(0,0,0,0.25);
+
+      --color-primary: #68d391; /* green-400 */
+      --color-accent: #f6ad55; /* orange-400 */
+      --color-danger: #fc8181; /* red-400 */
+      --color-success: #68d391;
+    }
+    
+    [data-theme="synthwave"] {
+      --color-bg-primary: #2a2139;
+      --color-bg-secondary: #3b2d53;
+      --color-bg-accent: #4c3969;
+      --color-text-primary: #f8f7ff;
+      --color-text-secondary: #bca8e3;
+      --color-text-light: #ffffff;
+      --color-border-primary: #4c3969;
+      --color-border-accent: #4c3969;
+      --color-shadow: rgba(0,0,0,0.3);
+
+      --color-primary: #ff7ac6;
+      --color-accent: #ffdf45;
+      --color-danger: #ff5757;
+      --color-success: #00f5d4;
+    }
+
+    /* --- Estilos Base con Variables --- */
+    body { background-color: var(--color-bg-primary); color: var(--color-text-primary); font-family: var(--font-body); transition: background-color 0.3s, color 0.3s; }
+    nav { background-color: var(--color-bg-secondary); }
+    .adol-nav-title { color: var(--color-text-primary); }
+    .adol-nav-link { color: var(--color-text-secondary); display: block; padding: 0.75rem 1rem; border-left: 4px solid transparent; cursor: pointer; transition: all 0.2s; }
+    .adol-nav-link:hover { background-color: var(--color-bg-accent); border-left-color: var(--color-accent); }
+    .adol-nav-link.active { border-left-color: var(--color-primary); font-weight: bold; background-color: var(--color-bg-accent); color: var(--color-text-primary); }
+    .adol-title { font-size: 1.75rem; font-weight: 300; margin-bottom: 0.5rem; }
+    .adol-subtitle { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--color-text-primary); border-bottom: 2px solid var(--color-border-accent); padding-bottom: 0.5rem;}
+    .adol-card { background-color: var(--color-bg-secondary); padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px var(--color-shadow); border: 1px solid var(--color-border-primary); }
+    .adol-card-clickable { display: block; text-decoration: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .adol-card-clickable:hover { transform: translateY(-5px); box-shadow: 0 8px 12px var(--color-shadow); }
+    .adol-mini-label { font-size: 0.8rem; color: var(--color-text-secondary); }
+    .adol-btn { background-color: var(--color-primary); color: var(--color-text-light); padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s; cursor: pointer; border: none; font-weight: 500;}
+    .adol-btn:hover { opacity: 0.85; }
+    .adol-btn-orange { background-color: var(--color-accent); }
+    .adol-btn-red { background-color: var(--color-danger); }
+    .adol-blue { color: var(--color-primary); } /* Renombrado para ser genérico */
+    .adol-orange { color: var(--color-accent); }
+    .adol-green { color: var(--color-success); }
+    .adol-red { color: var(--color-danger); }
+    .adol-mini-th { padding: 0.75rem; text-align: left; background-color: var(--color-primary); color: var(--color-text-light); }
+    .adol-mini-td { padding: 0.75rem; border-top: 1px solid var(--color-border-accent); }
+    .font-mono { font-family: var(--font-mono); }
+    #modal-body, .modal-form input, .modal-form select, .modal-form textarea { background-color: var(--color-bg-secondary); color: var(--color-text-primary); border: 1px solid var(--color-border-primary); }
+  </style>
+<link href="manifest.json" rel="manifest"/><meta content="#0d1117" name="theme-color"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><link href="icon-192.png" rel="icon" sizes="192x192"/><link href="icon-512.png" rel="icon" sizes="512x512"/></head>
+<body class="text-gray-800">
+<div class="flex h-screen">
+<nav class="w-60 shadow-md flex-shrink-0">
+<div class="p-4 flex items-center gap-3">
+<img alt="Logo" class="h-10 w-10" id="side-logo" src=""/>
+<span class="adol-nav-title font-bold text-lg"></span>
+</div>
+<a class="adol-nav-link" id="nav-dashboard" onclick="AdolApp.irModulo('dashboard')">📈 Dashboard</a>
+<a class="adol-nav-link" id="nav-bancos" onclick="AdolApp.irModulo('bancos')">🏦 Bancos</a>
+<a class="adol-nav-link" id="nav-ventas" onclick="AdolApp.irModulo('ventas')">🛒 Ventas</a>
+<a class="adol-nav-link" id="nav-otros-ingresos" onclick="AdolApp.irModulo('otros-ingresos')">✨ Otros Ingresos</a>
+<a class="adol-nav-link" id="nav-gastos" onclick="AdolApp.irModulo('gastos')">💸 Gastos</a>
+<a class="adol-nav-link" id="nav-cxc" onclick="AdolApp.irModulo('cxc')">💰 Cuentas por Cobrar</a>
+<a class="adol-nav-link" id="nav-cxp" onclick="AdolApp.irModulo('cxp')">🧾 Cuentas por Pagar</a>
+<a class="adol-nav-link" id="nav-inventario" onclick="AdolApp.irModulo('inventario')">📦 Inventario</a>
+<a class="adol-nav-link" id="nav-reportes" onclick="AdolApp.irModulo('reportes')">📊 Reportes</a>
+<a class="adol-nav-link" id="nav-config" onclick="AdolApp.irModulo('config')">⚙️ Configuración</a>
+</nav>
+<main class="flex-1 p-6 md:p-8 overflow-y-auto">
+<div id="dashboard"></div>
+<div id="bancos" style="display:none;"></div>
+<div id="ventas" style="display:none;"></div>
+<div id="otros-ingresos" style="display:none;"></div>
+<div id="gastos" style="display:none;"></div>
+<div id="cxc" style="display:none;"></div>
+<div id="cxp" style="display:none;"></div>
+<div id="inventario" style="display:none;"></div>
+<div id="reportes" style="display:none;"></div>
+<div id="config" style="display:none;"></div>
+</main>
+</div>
+<div class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50" id="modal-bg" onclick="AdolApp.closeModal()">
+<div class="p-6 rounded-lg shadow-xl w-full max-w-2xl modal-form" id="modal-body" onclick="event.stopPropagation()"></div>
+</div>
+<script>
+const AdolApp = {
+    // ===================== DATOS DE LA APLICACIÓN =====================
+    empresa: {},
+    transactionIdCounter: 0,
+    cuentas: [],
+    movimientos: [],
+    cxc: [], 
+    anticipos: [],
+    cxp: [],
+    inventario: [],
+    gastos: [],
+    ventas: [],
+    otrosIngresos: [],
+    categoriasGastos: [],
+    categoriasIngresos: [],
+    charts: { pnl: null, cxc: null },
+
+    // ===================== INICIALIZACIÓN Y NAVEGACIÓN =====================
+    init() {
+        this.loadAll();
+        this.actualizarPerfilEmpresa();
+        this.irModulo('dashboard');
+    },
+
+    irModulo(mod, params = {}) {
+        ["dashboard","bancos","cxc","cxp","inventario","gastos","ventas","otros-ingresos","reportes","config"].forEach(id=>{
+            const el = document.getElementById(id);
+            if(el) el.style.display = "none";
+            let nav = document.getElementById("nav-"+id);
+            if(nav) nav.classList.remove("active");
+        });
+        
+        const elToShow = document.getElementById(mod);
+        if(elToShow) elToShow.style.display = "block";
+
+        let nav2 = document.getElementById("nav-"+mod);
+        if(nav2) nav2.classList.add("active");
+        
+        document.title = this.empresa.nombre + " - " + (mod.charAt(0).toUpperCase() + mod.slice(1));
+        
+        const renderMap = {
+            dashboard: this.renderDashboard, bancos: this.renderBancos, cxc: this.renderCXC,
+            cxp: this.renderCXP, inventario: this.renderInventario, gastos: this.renderGastos,
+            ventas: this.renderVentas, "otros-ingresos": this.renderOtrosIngresos, 
+            reportes: () => this.renderReportes(params.submodulo), config: this.renderConfig
+        };
+        
+        if (renderMap[mod]) {
+            try {
+                renderMap[mod].call(this);
+            } catch(e) {
+                console.error(`Error al renderizar el módulo ${mod}:`, e);
+                if(elToShow) elToShow.innerHTML = `<div class="adol-red">Error al cargar el módulo. Revisa la consola para más detalles.</div>`;
+            }
+        }
+    },
+
+    // ===================== UTILIDADES =====================
+    showModal(content) { document.getElementById('modal-body').innerHTML = content; document.getElementById('modal-bg').classList.remove('hidden'); },
+    closeModal(){ document.getElementById('modal-bg').classList.add('hidden'); },
+
+    saveAll(){
+        localStorage.setItem("adol_data_final", JSON.stringify({
+            empresa: this.empresa, transactionIdCounter: this.transactionIdCounter, cuentas: this.cuentas, 
+            movimientos: this.movimientos, cxc: this.cxc, anticipos: this.anticipos, cxp: this.cxp, 
+            inventario: this.inventario, gastos: this.gastos, ventas: this.ventas, 
+            otrosIngresos: this.otrosIngresos, categoriasGastos: this.categoriasGastos, 
+            categoriasIngresos: this.categoriasIngresos
+        }));
+    },
+
+    loadAll(){
+        let savedTheme = localStorage.getItem("adol_theme");
+        if (savedTheme) this.aplicarTema(savedTheme);
+
+        let d = localStorage.getItem("adol_data_final");
+        const defaults = {
+            empresa: {
+                nombre: "ADOL Logistics",
+                logo: "https://i.imgur.com/p3xj3Qt.png",
+                direccion: "Tu Dirección",
+                contacto: "Tu Contacto"
+            },
+            transactionIdCounter: Date.now(),
+            cuentas: [], movimientos: [], cxc: [], anticipos: [], cxp: [], 
+            inventario: [], gastos: [], ventas: [], otrosIngresos: [],
+            categoriasGastos: ["Alquiler", "Sueldos", "Logística", "Marketing", "Suministros", "Impuestos", "Compra de Mercancía"],
+            categoriasIngresos: ["Venta de Productos", "Servicios", "Otros Ingresos"]
+        };
+
+        if (d) {
+            let obj = JSON.parse(d);
+            Object.keys(defaults).forEach(key => {
+                this[key] = obj[key] || defaults[key];
+            });
+            this.empresa.logo = obj.empresa.logo || defaults.empresa.logo;
+        } else {
+            Object.keys(defaults).forEach(key => {
+                this[key] = defaults[key];
+            });
+        }
+    },
+    
+    actualizarPerfilEmpresa(){ document.querySelector("#side-logo").src = this.empresa.logo; document.querySelector(".adol-nav-title").innerText = this.empresa.nombre; },
+    getTodayDate() { return new Date().toISOString().slice(0,10); },
+    formatCurrency(value) { return Number(value).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); },
+    findById(array, id) { return array.find(item => item.id === id); },
+    findIndexById(array, id) { return array.findIndex(item => item.id === id); },
+    getThemeColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); },
+
+    // ===================== EXPORTACIÓN =====================
+    descargarCSV(csvContent, fileName) { const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.setAttribute('href', url); a.setAttribute('download', fileName); a.style.visibility = 'hidden'; document.body.appendChild(a); a.click(); document.body.removeChild(a); },
+
+    exportarTablaPDF(titulo, headers, data, nombreArchivo) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        if (this.empresa.logo) {
+            try {
+                doc.addImage(this.empresa.logo, 'PNG', 14, 15, 20, 20);
+            } catch(e) { console.error("No se pudo cargar el logo en el PDF:", e); }
+        }
+        doc.setFontSize(20);
+        doc.text(this.empresa.nombre, 40, 22);
+        doc.setFontSize(12);
+        doc.text(titulo, 14, 40);
+        doc.setFontSize(10);
+        doc.text(`Fecha de exportación: ${this.getTodayDate()}`, 14, 46);
+
+        doc.autoTable({
+            startY: 52,
+            head: [headers],
+            body: data,
+            theme: 'striped',
+            headStyles: { fillColor: [0, 90, 156] }
+        });
+
+        doc.save(`${nombreArchivo}_${this.getTodayDate()}.pdf`);
+    },
+
+    // ===================== DASHBOARD (MODIFICADO CON ENLACES) =====================
+    renderDashboard() {
+        const totalVentas = this.ventas.reduce((sum, v) => sum + v.monto, 0);
+        const totalOtrosIngresos = this.otrosIngresos.reduce((sum, i) => sum + i.monto, 0);
+        const totalIngresos = totalVentas + totalOtrosIngresos;
+        const totalGastos = this.gastos.reduce((sum, g) => sum + g.monto, 0);
+        const resultado = totalIngresos - totalGastos;
+        const saldoBancos = this.cuentas.filter(c => c.tipo !== "Tarjeta de Crédito").reduce((a,c) => a + (+c.saldo || 0), 0);
+        const totalCxC = this.cxc.reduce((a,c) => a + (c.monto - (c.abonado || 0)), 0);
+        const totalCxP = this.cxp.reduce((a,c) => a + (c.monto - (c.pagado || 0)), 0);
+
+        const dashboardHTML = `
+            <div>
+                <h1 class="adol-title">Dashboard</h1>
+                <p class="text-gray-500 dark:text-gray-400 mb-8">Bienvenido, este es tu resumen financiero.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <a onclick="AdolApp.irModulo('bancos')" class="adol-card adol-card-clickable">
+                    <span class="adol-mini-label">Saldo en Bancos</span>
+                    <p class="font-bold text-2xl adol-blue">$${this.formatCurrency(saldoBancos)}</p>
+                </a>
+                <a onclick="AdolApp.irModulo('reportes', { submodulo: 'pnl' })" class="adol-card adol-card-clickable">
+                    <span class="adol-mini-label">Resultado Neto</span>
+                    <p class="font-bold text-2xl ${resultado >= 0 ? 'adol-green' : 'adol-red'}">$${this.formatCurrency(resultado)}</p>
+                </a>
+                <a onclick="AdolApp.irModulo('cxc')" class="adol-card adol-card-clickable">
+                    <span class="adol-mini-label">Cuentas por Cobrar</span>
+                    <p class="font-bold text-2xl adol-blue">$${this.formatCurrency(totalCxC)}</p>
+                </a>
+                <a onclick="AdolApp.irModulo('cxp')" class="adol-card adol-card-clickable">
+                    <span class="adol-mini-label">Cuentas por Pagar</span>
+                    <p class="font-bold text-2xl adol-orange">$${this.formatCurrency(totalCxP)}</p>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="adol-card">
+                    <h3 class="adol-subtitle">Ingresos vs. Gastos</h3>
+                    <div class="h-64"><canvas id="pnlChart"></canvas></div>
+                </div>
+                <div class="adol-card">
+                    <h3 class="adol-subtitle">Estado de Cuentas por Cobrar</h3>
+                    <div class="h-64"><canvas id="cxcChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="adol-card">
+                <h3 class="adol-subtitle">Acciones Rápidas</h3>
+                <div class="flex items-center justify-around flex-wrap gap-4 pt-4">
+                    <a onclick="AdolApp.abrirNuevaVenta()" class="flex flex-col items-center gap-2 adol-card-clickable p-4 rounded-lg">
+                        <svg class="w-8 h-8 adol-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span class="text-sm">Nueva Venta / Factura</span>
+                    </a>
+                    <a onclick="AdolApp.abrirRegistroCompra()" class="flex flex-col items-center gap-2 adol-card-clickable p-4 rounded-lg">
+                        <svg class="w-8 h-8 adol-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        <span class="text-sm">Nuevo Gasto / Compra</span>
+                    </a>
+                    <a onclick="AdolApp.irModulo('reportes', {submodulo: 'pnl'})" class="flex flex-col items-center gap-2 adol-card-clickable p-4 rounded-lg">
+                        <svg class="w-8 h-8 adol-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        <span class="text-sm">Reporte P&L</span>
+                    </a>
+                </div>
+            </div>
+        `;
+        document.getElementById("dashboard").innerHTML = dashboardHTML;
+        this.renderDashboardCharts();
+    },
+
+    renderDashboardCharts() {
+        if (this.charts.pnl) this.charts.pnl.destroy();
+        if (this.charts.cxc) this.charts.cxc.destroy();
+        const totalIngresos = this.ventas.reduce((s, v) => s + v.monto, 0) + this.otrosIngresos.reduce((s, i) => s + i.monto, 0);
+        const totalGastos = this.gastos.reduce((s, g) => s + g.monto, 0);
+        const pnlCtx = document.getElementById('pnlChart')?.getContext('2d');
+        if(!pnlCtx) return;
+        this.charts.pnl = new Chart(pnlCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Ingresos Totales', 'Gastos Totales'],
+                datasets: [{ data: [totalIngresos, totalGastos], backgroundColor: [this.getThemeColor('--color-success'), this.getThemeColor('--color-danger')], borderColor: this.getThemeColor('--color-bg-secondary'), borderWidth: 4, }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { color: this.getThemeColor('--color-text-secondary') } } } }
+        });
+        const totalCobrado = this.cxc.reduce((s, c) => s + c.abonado, 0);
+        const totalMonto = this.cxc.reduce((s, c) => s + c.monto, 0);
+        const totalPendiente = totalMonto - totalCobrado;
+        const cxcCtx = document.getElementById('cxcChart')?.getContext('2d');
+        if(!cxcCtx) return;
+        this.charts.cxc = new Chart(cxcCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Cobrado', 'Pendiente'],
+                datasets: [{ data: [totalCobrado, totalPendiente > 0 ? totalPendiente : 0], backgroundColor: [this.getThemeColor('--color-primary'), this.getThemeColor('--color-accent')], borderColor: this.getThemeColor('--color-bg-secondary'), borderWidth: 4, }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { color: this.getThemeColor('--color-text-secondary') } } } }
+        });
+    },
+
+    // ===================== BANCOS =====================
+    renderBancos() { document.getElementById("bancos").innerHTML = `<div class="flex justify-between items-center"><div class="adol-title">Bancos y Cuentas</div><div><button class="adol-btn adol-btn-orange" onclick="AdolApp.exportarBancosPDF()">Exportar a PDF</button><button class="adol-btn ml-2" onclick="AdolApp.abrirNuevaCuenta()">+ Nueva Cuenta</button></div></div><div class="overflow-auto adol-card"><table class="min-w-full text-sm"><thead><tr><th class="adol-mini-th">Nombre</th><th class="adol-mini-th">Tipo</th><th class="adol-mini-th text-right">Saldo</th></tr></thead><tbody>${this.cuentas.map((x,i)=>`<tr><td class="adol-mini-td">${x.nombre}</td><td class="adol-mini-td">${x.tipo}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(x.saldo)}</td></tr>`).join('')}</tbody></table></div>`; },
+    abrirNuevaCuenta() { const c = `<div class="adol-title mb-4">Agregar Cuenta</div><form onsubmit="AdolApp.agregarCuenta(event)" class="space-y-4"><input class="w-full p-2 border rounded" id="nueva-cuenta-nombre" placeholder="Nombre" required><select class="w-full p-2 border rounded" id="nueva-cuenta-tipo"><option value="Banco">Banco</option><option value="Tarjeta de Crédito">Tarjeta de Crédito</option><option value="Caja">Caja</option></select><input class="w-full p-2 border rounded" type="number" step="0.01" id="nueva-cuenta-saldo" placeholder="Saldo Inicial" required><div class="flex justify-end gap-2"><button type="button" class="adol-btn adol-btn-orange" onclick="AdolApp.closeModal()">Cancelar</button><button class="adol-btn" type="submit">Agregar</button></div></form>`; this.showModal(c); },
+    agregarCuenta(e){ e.preventDefault(); let n=document.getElementById('nueva-cuenta-nombre').value.trim(),t=document.getElementById('nueva-cuenta-tipo').value,s=Number(document.getElementById('nueva-cuenta-saldo').value); this.cuentas.push({id:this.transactionIdCounter++,nombre:n,tipo:t,saldo:s}); this.saveAll(); this.renderBancos(); this.closeModal(); },
+    exportarBancosPDF() { const headers = ["Nombre", "Tipo", "Saldo"]; const data = this.cuentas.map(c => [c.nombre, c.tipo, this.formatCurrency(c.saldo)]); this.exportarTablaPDF("Listado de Cuentas", headers, data, "listado_cuentas"); },
+    
+    // ===================== VENTAS =====================
+    renderVentas() { document.getElementById('ventas').innerHTML = `<div class="flex justify-between items-center"><div class="adol-title">Ventas</div><div><button class="adol-btn adol-btn-orange" onclick="AdolApp.exportarVentasPDF()">Exportar a PDF</button><button class="adol-btn ml-2" onclick="AdolApp.abrirNuevaVenta()">+ Nueva Venta</button></div></div><div class="adol-card overflow-auto"><table class="min-w-full text-sm"><thead><tr><th class="adol-mini-th">Fecha</th><th class="adol-mini-th">Cliente</th><th class="adol-mini-th">Descripción</th><th class="adol-mini-th text-right">Monto</th><th class="adol-mini-th text-center">Acciones</th></tr></thead><tbody>${this.ventas.map(v => `<tr><td class="adol-mini-td">${v.fecha}</td><td class="adol-mini-td">${v.cliente}</td><td class="adol-mini-td">${v.descripcion}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(v.monto)}</td><td class="adol-mini-td text-center"><button class="adol-red hover:underline" onclick="AdolApp.eliminarVenta(${v.id})">Anular</button></td></tr>`).join('')}</tbody></table><p class="text-xs text-gray-500 mt-4">* Para corregir una venta, anúlala (si no tiene pagos) y créala de nuevo.</p></div>`; },
+    abrirNuevaVenta() { const i=this.inventario.map(p=>`<option value="${p.id}">${p.nombre} (Disp: ${p.cantidad})</option>`).join(''); const c=`<div class="adol-title mb-4">Registrar Venta</div><form onsubmit="AdolApp.agregarVenta(event)" class="space-y-4"><input type="date" id="venta-fecha" class="w-full p-2 border rounded" value="${this.getTodayDate()}" required><input type="text" id="venta-cliente" class="w-full p-2 border rounded" placeholder="Nombre del Cliente" required><select id="venta-producto-id" class="w-full p-2 border rounded"><option value="">-- Sin producto de inventario --</option>${i}</select><input type="number" id="venta-cantidad" class="w-full p-2 border rounded" placeholder="Cantidad Vendida" min="1" step="1"><input type="text" id="venta-descripcion" class="w-full p-2 border rounded" placeholder="Descripción (Ej: Factura #1020)" required><input type="number" step="0.01" id="venta-monto" class="w-full p-2 border rounded" placeholder="Monto Total" min="0.01" required><div class="flex items-center"><input type="checkbox" id="venta-genera-cxc" class="mr-2" checked><label for="venta-genera-cxc">Generar CXC</label></div><div class="flex justify-end gap-2"><button type="button" class="adol-btn adol-btn-orange" onclick="AdolApp.closeModal()">Cancelar</button><button class="adol-btn" type="submit">Guardar</button></div></form>`; this.showModal(c); },
+    agregarVenta(e) { e.preventDefault(); const pId=document.getElementById('venta-producto-id').value,cant=Number(document.getElementById('venta-cantidad').value); let pV=null; if(pId){const p=this.findById(this.inventario,Number(pId)); if(cant<=0||p.cantidad<cant){alert("Cantidad de inventario inválida o insuficiente.");return;} pV={id:p.id,cantidad:cant,nombre:p.nombre};} const nV={id:this.transactionIdCounter++,fecha:document.getElementById('venta-fecha').value,cliente:document.getElementById('venta-cliente').value,descripcion:document.getElementById('venta-descripcion').value,monto:Number(document.getElementById('venta-monto').value),productoVendido:pV}; if(pV){this.findById(this.inventario,pV.id).cantidad-=pV.cantidad;} this.ventas.push(nV); if(document.getElementById('venta-genera-cxc').checked){this.cxc.push({id:this.transactionIdCounter++,ventaId:nV.id,cliente:nV.cliente,fecha:nV.fecha,concepto:`Venta: ${nV.descripcion}`,monto:nV.monto,abonado:0,historialPagos:[]});} this.saveAll(); this.renderVentas(); this.closeModal(); },
+    eliminarVenta(vId){ const vIdx=this.findIndexById(this.ventas,vId); if(vIdx===-1)return; const v=this.ventas[vIdx],c=this.cxc.find(c=>c.ventaId===vId); if(c&&c.abonado>0){alert("Error: No se puede anular una venta con pagos aplicados.");return;} if(!confirm(`¿Seguro que quieres anular la venta a "${v.cliente}" por $${this.formatCurrency(v.monto)}?`))return; if(v.productoVendido){this.findById(this.inventario,v.productoVendido.id).cantidad+=v.productoVendido.cantidad;this.movimientos.push({fecha:this.getTodayDate(),tipo:'Anulación Venta',descripcion:`Dev. inventario: ${v.productoVendido.cantidad} x ${v.productoVendido.nombre}`,monto:0,cuenta:'Inventario',transaccionId:v.id});} if(c){const cIdx=this.findIndexById(this.cxc,c.id);if(cIdx>-1)this.cxc.splice(cIdx,1);} this.ventas.splice(vIdx,1); this.saveAll(); this.renderVentas(); },
+    exportarVentasPDF() { const headers = ["Fecha", "Cliente", "Descripción", "Monto"]; const data = this.ventas.map(v => [v.fecha, v.cliente, v.descripcion, this.formatCurrency(v.monto)]); this.exportarTablaPDF("Listado de Ventas", headers, data, "listado_ventas"); },
+
+    // ===================== OTROS INGRESOS =====================
+    renderOtrosIngresos() { document.getElementById('otros-ingresos').innerHTML = `<div class="flex justify-between items-center"><div class="adol-title">Otros Ingresos</div><div><button class="adol-btn adol-btn-orange" onclick="AdolApp.exportarOtrosIngresosPDF()">Exportar a PDF</button><button class="adol-btn ml-2" onclick="AdolApp.abrirNuevoOtroIngreso()">+ Nuevo Ingreso</button></div></div><div class="adol-card overflow-auto"><table class="min-w-full text-sm"><thead><tr><th class="adol-mini-th">Fecha</th><th class="adol-mini-th">Concepto</th><th class="adol-mini-th">Categoría</th><th class="adol-mini-th">Destino</th><th class="adol-mini-th text-right">Monto</th></tr></thead><tbody>${this.otrosIngresos.map(i => `<tr><td class="adol-mini-td">${i.fecha}</td><td class="adol-mini-td">${i.concepto}</td><td class="adol-mini-td">${i.categoria}</td><td class="adol-mini-td">${i.destino}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(i.monto)}</td></tr>`).join('')}</tbody></table></div>`; },
+    abrirNuevoOtroIngreso() { const catOpt = this.categoriasIngresos.map(c => `<option value="${c}">${c}</option>`).join(''); const accOpt = this.cuentas.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join(''); const content = `<div class="adol-title mb-4">Registrar Otro Ingreso</div><form onsubmit="AdolApp.guardarOtroIngreso(event)" class="space-y-4"><input type="date" id="ingreso-fecha" class="w-full p-2 border rounded" value="${this.getTodayDate()}" required><input type="text" id="ingreso-cliente" class="w-full p-2 border rounded" placeholder="Recibido de (Cliente/Concepto)" required><input type="number" step="0.01" id="ingreso-monto" class="w-full p-2 border rounded" placeholder="Monto" required><select id="ingreso-categoria" class="w-full p-2 border rounded" required>${catOpt}</select><div class="p-4 bg-[var(--color-bg-primary)] rounded-md"><p class="text-sm font-bold mb-2">Destino:</p><input type="radio" name="ingreso_destino" value="banco" id="ingreso_banco" checked onchange="document.getElementById('ingreso-banco-div').style.display='block'; document.getElementById('ingreso-cxc-div').style.display='none';"> <label for="ingreso_banco">Depositar en cuenta</label><div id="ingreso-banco-div" class="mt-2"><select id="ingreso-cuenta-nombre" class="w-full p-2 border rounded">${accOpt}</select></div><input type="radio" name="ingreso_destino" value="cxc" id="ingreso_cxc_radio" onchange="document.getElementById('ingreso-banco-div').style.display='none'; document.getElementById('ingreso-cxc-div').style.display='block';"> <label for="ingreso_cxc_radio">Generar Cuenta por Cobrar</label><div id="ingreso-cxc-div" style="display:none;" class="mt-2"><p class="text-xs text-gray-500">Se creará una factura pendiente.</p></div></div><div class="flex justify-end gap-2"><button type="button" class="adol-btn adol-btn-orange" onclick="AdolApp.closeModal()">Cancelar</button><button class="adol-btn" type="submit">Guardar</button></div></form>`; this.showModal(content); },
+    guardarOtroIngreso(event) { event.preventDefault(); const nI = { id: this.transactionIdCounter++, fecha: document.getElementById('ingreso-fecha').value, concepto: document.getElementById('ingreso-cliente').value, monto: Number(document.getElementById('ingreso-monto').value), categoria: document.getElementById('ingreso-categoria').value, destino: ''}; const dT = document.querySelector('input[name="ingreso_destino"]:checked').value; if (dT === 'banco') { const cN = document.getElementById('ingreso-cuenta-nombre').value; if (!cN) { alert("Debe seleccionar una cuenta."); return; } const c = this.cuentas.find(c => c.nombre === cN); c.saldo += nI.monto; nI.destino = `Banco: ${cN}`; this.movimientos.push({ fecha: nI.fecha, tipo: 'Otro Ingreso', descripcion: `${nI.categoria}: ${nI.concepto}`, monto: nI.monto, cuenta: cN }); } else { nI.destino = 'Cuenta por Cobrar'; this.cxc.push({ id: this.transactionIdCounter++, ventaId: null, cliente: nI.concepto, fecha: nI.fecha, concepto: `Ingreso por ${nI.categoria}`, monto: nI.monto, abonado: 0, historialPagos: [] }); } this.otrosIngresos.push(nI); this.saveAll(); this.renderOtrosIngresos(); this.closeModal(); },
+    exportarOtrosIngresosPDF() { const headers = ["Fecha", "Concepto", "Categoría", "Destino", "Monto"]; const data = this.otrosIngresos.map(i => [i.fecha, i.concepto, i.categoria, i.destino, this.formatCurrency(i.monto)]); this.exportarTablaPDF("Listado de Otros Ingresos", headers, data, "listado_otros_ingresos"); },
+
+    // ===================== GASTOS =====================
+    renderGastos() { document.getElementById('gastos').innerHTML = `<div class="flex justify-between items-center"><div class="adol-title">Gastos</div><div><button class="adol-btn adol-btn-orange" onclick="AdolApp.exportarGastosPDF()">Exportar a PDF</button><button class="adol-btn ml-2" onclick="AdolApp.abrirNuevoGasto()">+ Nuevo Gasto</button></div></div><div class="adol-card overflow-auto"><table class="min-w-full text-sm"><thead><tr><th class="adol-mini-th">Fecha</th><th class="adol-mini-th">Descripción</th><th class="adol-mini-th">Categoría</th><th class="adol-mini-th">Pagado Con</th><th class="adol-mini-th text-right">Monto</th><th class="adol-mini-th text-center">Acciones</th></tr></thead><tbody>${this.gastos.map(g => `<tr><td class="adol-mini-td">${g.fecha}</td><td class="adol-mini-td">${g.descripcion}</td><td class="adol-mini-td">${g.categoria}</td><td class="adol-mini-td">${g.cuentaPago}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(g.monto)}</td><td class="adol-mini-td text-center"><button class="text-blue-600 hover:underline" onclick="AdolApp.abrirEdicionGasto(${g.id})">Editar</button> | <button class="text-red-600 hover:underline" onclick="AdolApp.eliminarGasto(${g.id})">Eliminar</button></td></tr>`).join('')}</tbody></table></div>`; },
+    abrirNuevoGasto(gId=null) { const isE=gId!==null,g=isE?this.findById(this.gastos,gId):{},cO=this.cuentas.map(c=>`<option value="${c.nombre}" ${isE&&g.cuentaPago===c.nombre?'selected':''}>${c.nombre}</option>`).join(''),catO=this.categoriasGastos.map(cat=>`<option value="${cat}" ${isE&&g.categoria===cat?'selected':''}>${cat}</option>`).join(''); const cont=`<div class="adol-title mb-4">${isE?'Editar':'Registrar'} Gasto</div><form onsubmit="AdolApp.guardarGasto(event,${gId})" class="space-y-4"><input type="date" id="gasto-fecha" class="w-full p-2 border rounded" value="${isE?g.fecha:this.getTodayDate()}" required><input type="text" id="gasto-descripcion" class="w-full p-2 border rounded" placeholder="Descripción" value="${isE?g.descripcion:''}" required><select id="gasto-categoria" class="w-full p-2 border rounded">${catO}</select><input type="number" step="0.01" id="gasto-monto" class="w-full p-2 border rounded" placeholder="Monto" min="0.01" value="${isE?g.monto:''}" required><select id="gasto-cuentaPago" class="w-full p-2 border rounded" required><option value="">-- Pagado Con --</option>${cO}</select><div class="flex justify-end gap-2"><button type="button" class="adol-btn adol-btn-orange" onclick="AdolApp.closeModal()">Cancelar</button><button class="adol-btn" type="submit">Guardar</button></div></form>`; this.showModal(cont); },
+    abrirEdicionGasto(gId){this.abrirNuevoGasto(gId);},
+    guardarGasto(e,gId=null){e.preventDefault();const isE=gId!==null;if(isE){const oG=this.findById(this.gastos,gId),oC=this.cuentas.find(c=>c.nombre===oG.cuentaPago);if(oC)oC.saldo+=oG.monto;}const uG={id:isE?gId:this.transactionIdCounter++,fecha:document.getElementById('gasto-fecha').value,descripcion:document.getElementById('gasto-descripcion').value,categoria:document.getElementById('gasto-categoria').value,monto:Number(document.getElementById('gasto-monto').value),cuentaPago:document.getElementById('gasto-cuentaPago').value};const nC=this.cuentas.find(c=>c.nombre===uG.cuentaPago);if(nC)nC.saldo-=uG.monto;this.movimientos.push({fecha:uG.fecha,tipo:'Gasto',descripcion:`${isE?'EDICIÓN ':''}Gasto: ${uG.descripcion}`,monto:-uG.monto,cuenta:uG.cuentaPago,transaccionId:uG.id});if(isE){this.gastos[this.findIndexById(this.gastos,gId)]=uG;}else{this.gastos.push(uG);}this.saveAll();this.renderGastos();this.closeModal();},
+    eliminarGasto(gId){if(!confirm("¿Seguro que quieres eliminar este gasto?"))return;const idx=this.findIndexById(this.gastos,gId);if(idx===-1)return;const g=this.gastos[idx],c=this.cuentas.find(c=>c.nombre===g.cuentaPago);if(c)c.saldo+=g.monto;this.movimientos.push({fecha:this.getTodayDate(),tipo:'Anulación Gasto',descripcion:`ANULADO: ${g.descripcion}`,monto:g.monto,cuenta:g.cuentaPago,transaccionId:g.id});this.gastos.splice(idx,1);this.saveAll();this.renderGastos();},
+    exportarGastosPDF() { const headers = ["Fecha", "Descripción", "Categoría", "Pagado Con", "Monto"]; const data = this.gastos.map(g => [g.fecha, g.descripcion, g.categoria, g.cuentaPago, this.formatCurrency(g.monto)]); this.exportarTablaPDF("Listado de Gastos", headers, data, "listado_gastos"); },
+
+    // ===================== CXC Y ANTICIPOS =====================
+    renderCXC() { document.getElementById('cxc').innerHTML=`<div class="flex justify-between items-center"><div class="adol-title">Cuentas por Cobrar y Anticipos</div><div class="flex gap-2"><button class="adol-btn adol-btn-orange" onclick="AdolApp.exportarCXCaPDF()">Exportar a PDF</button><button class="adol-btn adol-btn-orange ml-2" onclick="AdolApp.abrirNuevaFacturaExistente()">+ Factura Existente</button><button class="adol-btn ml-2" onclick="AdolApp.abrirNuevoAnticipo()">+ Registrar Anticipo</button></div></div><div class="mb-8"><div class="adol-subtitle">Facturas por Cobrar</div><div class="adol-card overflow-auto"><table class="min-w-full text-sm"><thead><tr><th class="adol-mini-th">Fecha</th><th class="adol-mini-th">Cliente</th><th class="adol-mini-th">Concepto</th><th class="adol-mini-th text-right">Monto</th><th class="adol-mini-th text-right">Abonado</th><th class="adol-mini-th text-right">Saldo</th><th class="adol-mini-th text-center">Acción</th></tr></thead><tbody>${this.cxc.map((c)=>{const s=c.monto-c.abonado;return `<tr class="${s<=0?'opacity-60':''}"><td class="adol-mini-td">${c.fecha}</td><td class="adol-mini-td">${c.cliente}</td><td class="adol-mini-td">${c.concepto}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(c.monto)}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(c.abonado)}</td><td class="adol-mini-td text-right font-bold font-mono">$${this.formatCurrency(s)}</td><td class="adol-mini-td text-center">${s>0?`<button class="adol-btn px-2 py-1 text-xs" onclick="AdolApp.registrarAbonoCXC(${c.id})">Abonar</button>`:''}<button class="text-gray-500 hover:underline text-xs ml-2" onclick="AdolApp.verHistorialPagos(${c.id})">Historial</button></td></tr>`}).join('')}</tbody></table></div></div><div><div class="adol-subtitle">Anticipos de Clientes</div><div class="adol-card overflow-auto"><table class="min-w-full text-sm"><thead><tr><th class="adol-mini-th">Fecha</th><th class="adol-mini-th">Cliente</th><th class="adol-mini-th">Descripción</th><th class="adol-mini-th text-right">Monto Original</th><th class="adol-mini-th text-right">Saldo Disponible</th></tr></thead><tbody>${this.anticipos.map(a=>`<tr class="${a.saldo<=0?'opacity-50':''}"><td class="adol-mini-td">${a.fecha}</td><td class="adol-mini-td">${a.cliente}</td><td class="adol-mini-td">${a.descripcion}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(a.montoOriginal)}</td><td class="adol-mini-td text-right font-bold font-mono">$${this.formatCurrency(a.saldo)}</td></tr>`).join('')}</tbody></table></div></div>`; },
+    abrirNuevaFacturaExistente(){ const c=`<div class="adol-title mb-4">Agregar Factura Existente</div><p class="text-sm mb-4 text-gray-500">No afectará tus bancos.</p><form onsubmit="AdolApp.agregarFacturaExistente(event)" class="space-y-4"><input type="date" id="factura-fecha" class="w-full p-2 border rounded" value="${this.getTodayDate()}" required><input type="text" id="factura-cliente" class="w-full p-2 border rounded" placeholder="Cliente" required><input type="text" id="factura-concepto" class="w-full p-2 border rounded" placeholder="Concepto (Ej: Factura #1234)" required><input type="number" step="0.01" id="factura-monto" class="w-full p-2 border rounded" placeholder="Monto Total" required><input type="number" step="0.01" id="factura-abonado" class="w-full p-2 border rounded" placeholder="Monto Ya Abonado" value="0"><div class="flex justify-end gap-2"><button type="button" class="adol-btn adol-btn-orange" onclick="AdolApp.closeModal()">Cancelar</button><button class="adol-btn" type="submit">Guardar</button></div></form>`; this.showModal(c); },
+    agregarFacturaExistente(e){ e.preventDefault(); const m=Number(document.getElementById('factura-monto').value),a=Number(document.getElementById('factura-abonado').value); if(a>m){alert("El monto abonado no puede ser mayor al total.");return;} const nF={id:this.transactionIdCounter++,ventaId:null,cliente:document.getElementById('factura-cliente').value,fecha:document.getElementById('factura-fecha').value,concepto:document.getElementById('factura-concepto').value,monto:m,abonado:a,historialPagos:[]}; if(a>0){nF.historialPagos.push({id:this.transactionIdCounter++,fecha:nF.fecha,monto:a,tipo:'Saldo Inicial',descripcion:'Pago previo al sistema'});} this.cxc.push(nF); this.saveAll(); this.renderCXC(); this.closeModal(); },
+    abrirNuevoAnticipo(){ const cO=this.cuentas.filter(c=>c.tipo!=='Tarjeta de Crédito').map((c)=>`<option value="${c.nombre}">${c.nombre}</option>`).join(''); const c=`<div class="adol-title mb-4">Registrar Anticipo (Nuevo Ingreso)</div><form onsubmit="AdolApp.agregarAnticipo(event)" class="space-y-4"><input type="date" id="anticipo-fecha" class="w-full p-2 border rounded" value="${this.getTodayDate()}" required><input type="text" id="anticipo-cliente" class="w-full p-2 border rounded" placeholder="Cliente" required><input type="number" step="0.01" id="anticipo-monto" class="w-full p-2 border rounded" placeholder="Monto" min="0.01" required><input type="text" id="anticipo-desc" class="w-full p-2 border rounded" placeholder="Descripción" required><select id="anticipo-cuenta-nombre" class="w-full p-2 border rounded" required><option value="">-- Recibido en Cuenta --</option>${cO}</select><div class="flex justify-end gap-2"><button type="button" class="adol-btn adol-btn-orange" onclick="AdolApp.closeModal()">Cancelar</button><button class="adol-btn" type="submit">Guardar</button></div></form>`; this.showModal(c); },
+    agregarAnticipo(e){ e.preventDefault(); const m=Number(document.getElementById('anticipo-monto').value),cN=document.getElementById('anticipo-cuenta-nombre').value,cl=document.getElementById('anticipo-cliente').value.trim(),f=document.getElementById('anticipo-fecha').value,d=document.getElementById('anticipo-desc').value; const cta = this.cuentas.find(c => c.nombre === cN); if(!cta){alert('Cuenta no encontrada.'); return;} this.anticipos.push({id:this.transactionIdCounter++,fecha:f,cliente:cl,descripcion:d,montoOriginal:m,saldo:m}); cta.saldo+=m; this.movimientos.push({fecha:f,tipo:'Anticipo Cliente',descripcion:`De ${cl}: ${d}`,monto:m,cuenta:cta.nombre}); this.saveAll();this.renderCXC();this.closeModal(); },
+    registrarAbonoCXC(cxcId){ const cI=this.findById(this.cxc,cxcId),sD=cI.monto-cI.abonado,aD=this.anticipos.filter(a=>a.cliente===cI.cliente&&a.saldo>0),aO=aD.map(a=>`<option value="${a.id}">Anticipo del ${a.fecha} ($${this.formatCurrency(a.saldo)})</option>`).join(''),cO=this.cuentas.filter(c=>c.tipo!=='Tarjeta de Crédito').map(c=>`<option value="${c.nombre}">${c.nombre}</option>`).join(''); const cont=`<div class="adol-title mb-4">Registrar Abono</div><p>Cliente: <strong>${cI.cliente}</strong> | Saldo: <strong>$${this.formatCurrency(sD)}</strong></p><form onsubmit="AdolApp.guardarAbonoCXC(event, ${cxcId})" class="space-y-4 mt-4"><input type="number" step="0.01" id="abono-monto" class="w-full p-2 border rounded" placeholder="Monto del Abono" max="${sD}" min="0.01" required><input type="text" id="abono-descripcion" class="w-full p-2 border rounded" placeholder="Descripción del pago (Ej: Cheque #123)"> <div class="p-4 bg-[var(--color-bg-primary)] rounded-md"><p class="text-sm font-bold mb-2">Fuente:</p><input type="radio" name="abono_tipo" value="cuenta" id="abono_cuenta_radio" checked onchange="document.getElementById('abono_cuenta').style.display='block';document.getElementById('abono_anticipo').style.display='none';"> <label for="abono_cuenta_radio">Nuevo Pago</label><div id="abono_cuenta" class="mt-2"><select id="abono-cuenta-nombre" class="w-full p-2 border rounded"><option value="">-- Depositar en... --</option>${cO}</select></div>${aO?`<br><input type="radio" name="abono_tipo" value="anticipo" id="abono_anticipo_radio" onchange="document.getElementById('abono_cuenta').style.display='none';document.getElementById('abono_anticipo').style.display='block';"> <label for="abono_anticipo_radio">Usar Anticipo</label><div id="abono_anticipo" style="display:none;" class="mt-2"><select id="abono-anticipo-id" class="w-full p-2 border rounded">${aO}</select></div>`:''}<div class="flex justify-end gap-2 mt-4"><button type="button" class="adol-btn adol-btn-orange" onclick="AdolApp.closeModal()">Cancelar</button><button class="adol-btn" type="submit">Registrar</button></div></form>`; this.showModal(cont); },
+    guardarAbonoCXC(e,cxcId){ e.preventDefault(); const mA=Number(document.getElementById('abono-monto').value),aT=document.querySelector('input[name="abono_tipo"]:checked').value,desc=document.getElementById('abono-descripcion').value,cI=this.findById(this.cxc,cxcId); if(mA<=0)return; const pago={id:this.transactionIdCounter++,fecha:this.getTodayDate(),monto:mA,descripcion:desc||'Pago registrado'}; if(aT==='cuenta'){const cN=document.getElementById('abono-cuenta-nombre').value; if(cN===""){alert("Debe seleccionar una cuenta.");return;}const c=this.cuentas.find(c=>c.nombre===cN); cI.abonado+=mA; c.saldo+=mA; pago.tipo='Abono Directo';pago.cuentaNombre=cN; cI.historialPagos.push(pago); this.movimientos.push({fecha:this.getTodayDate(),tipo:'Cobro CXC',descripcion:`Abono de ${cI.cliente}: ${desc}`,monto:mA,cuenta:c.nombre});}else{const aId=Number(document.getElementById('abono-anticipo-id').value),aI=this.findById(this.anticipos,aId); if(mA>aI.saldo){alert("El monto no puede ser mayor que el saldo del anticipo.");return;}cI.abonado+=mA; aI.saldo-=mA; pago.tipo='Aplicación de Anticipo';pago.anticipoId=aId; cI.historialPagos.push(pago); this.movimientos.push({fecha:this.getTodayDate(),tipo:'Aplicación Anticipo',descripcion:`Aplicado a factura de ${cI.cliente}`,monto:mA,cuenta:'Interno'});} this.saveAll();this.renderCXC();this.closeModal(); },
+    verHistorialPagos(cxcId) { const cI=this.findById(this.cxc,cxcId); let historialHTML = cI.historialPagos.length > 0 ? cI.historialPagos.map(p => `<tr><td class="adol-mini-td">${p.fecha}</td><td class="adol-mini-td">${p.tipo}</td><td class="adol-mini-td">${p.descripcion}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(p.monto)}</td><td class="adol-mini-td text-center"><button class="text-blue-600 hover:underline text-xs" onclick="AdolApp.editarPagoFactura()">Editar</button> | <button class="text-red-600 hover:underline text-xs" onclick="AdolApp.eliminarPagoFactura(${cxcId}, ${p.id})">Eliminar</button></td></tr>`).join('') : `<tr><td colspan="5" class="adol-mini-td text-center text-gray-500">No hay pagos registrados.</td></tr>`; const c = `<div class="flex justify-between items-center"><div class="adol-title mb-4">Historial de Pagos</div></div><p class="text-sm mb-2"><strong>Cliente:</strong> ${cI.cliente}</p><p class="text-sm mb-4"><strong>Factura:</strong> ${cI.concepto}</p><div class="adol-card overflow-auto"><table class="min-w-full text-sm"><thead><tr><th class="adol-mini-th">Fecha</th><th class="adol-mini-th">Tipo</th><th class="adol-mini-th">Descripción</th><th class="adol-mini-th text-right">Monto</th><th class="adol-mini-th text-center">Acciones</th></tr></thead><tbody>${historialHTML}</tbody></table></div><div class="mt-4 text-right font-bold">Saldo Pendiente: <span class="adol-orange">$${this.formatCurrency(cI.monto - cI.abonado)}</span></div>`; this.showModal(c); },
+    editarPagoFactura() { alert("Para editar un pago, por favor elimínelo y regístrelo de nuevo con los datos correctos. Esto asegura la integridad de los datos contables."); },
+    eliminarPagoFactura(cxcId, pagoId) { if (!confirm("¿Seguro que quieres eliminar este pago? Esta acción revertirá el movimiento en tus cuentas.")) return; const cI=this.findById(this.cxc,cxcId); const pagoIndex=cI.historialPagos.findIndex(p=>p.id===pagoId); if(pagoIndex === -1) return; const pago=cI.historialPagos[pagoIndex]; cI.abonado-=pago.monto; if(pago.tipo === 'Abono Directo' && pago.cuentaNombre){ const cuenta=this.cuentas.find(c=>c.nombre===pago.cuentaNombre); if(cuenta) cuenta.saldo-=pago.monto; this.movimientos.push({fecha:this.getTodayDate(),tipo:'Anulación de Cobro',descripcion:`Reversión de pago para factura ${cI.concepto}`,monto:-pago.monto,cuenta:cuenta?cuenta.nombre:'N/A'}); } else if(pago.tipo === 'Aplicación de Anticipo' && pago.anticipoId) { const anticipoItem = this.findById(this.anticipos, pago.anticipoId); if (anticipoItem) anticipoItem.saldo += pago.monto; } cI.historialPagos.splice(pagoIndex, 1); this.saveAll(); this.verHistorialPagos(cxcId); },
+    exportarCXCaPDF() { const headers = ["Fecha", "Cliente", "Concepto", "Monto", "Abonado", "Saldo"]; const data = this.cxc.map(c => [c.fecha, c.cliente, c.concepto, this.formatCurrency(c.monto), this.formatCurrency(c.abonado), this.formatCurrency(c.monto - c.abonado)]); this.exportarTablaPDF("Listado de Cuentas por Cobrar", headers, data, "listado_cxc"); },
+
+    // ===================== CXP =====================
+    renderCXP() { document.getElementById('cxp').innerHTML = `<div class="flex justify-between items-center"><div class="adol-title">Cuentas por Pagar</div><div><button class="adol-btn adol-btn-orange" onclick="AdolApp.exportarCXP_PDF()">Exportar a PDF</button><button class="adol-btn ml-2" onclick="AdolApp.abrirRegistroCompra()">+ Registrar Compra / Factura</button></div></div><div class="adol-card overflow-auto"><table class="min-w-full text-sm"><thead><tr><th class="adol-mini-th">Fecha</th><th class="adol-mini-th">Proveedor</th><th class="adol-mini-th">Concepto</th><th class="adol-mini-th text-right">Monto</th><th class="adol-mini-th text-right">Pagado</th><th class="adol-mini-th text-right">Saldo</th><th class="adol-mini-th text-center">Acción</th></tr></thead><tbody>${this.cxp.map((c)=>{const s=c.monto-c.pagado; return `<tr class="${s<=0?'opacity-60':''}"><td class="adol-mini-td">${c.fecha}</td><td class="adol-mini-td">${c.proveedor}</td><td class="adol-mini-td">${c.concepto}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(c.monto)}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(c.pagado)}</td><td class="adol-mini-td text-right font-bold font-mono">$${this.formatCurrency(s)}</td><td class="adol-mini-td text-center">${s>0?`<button class="adol-btn px-2 py-1 text-xs" onclick="AdolApp.registrarPagoCXP(${c.id})">Pagar</button>`:'Pagado'}</td></tr>`}).join('')}</tbody></table></div>`; },
+    abrirRegistroCompra(){ const inventarioOptions = this.inventario.map(p => `<option value="${p.id}">${p.nombre} (${p.sku})</option>`).join(''); const gastoOptions = this.categoriasGastos.map(c => `<option value="${c}">${c}</option>`).join(''); const cuentaOptions = this.cuentas.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join(''); const content = `<div class="adol-title mb-4">Registrar Compra o Gasto</div><form onsubmit="AdolApp.guardarCompra(event)" class="space-y-4"><input type="date" id="compra-fecha" class="w-full p-2 border rounded" value="${this.getTodayDate()}" required><input type="text" id="compra-proveedor" class="w-full p-2 border rounded" placeholder="Proveedor" required><input type="text" id="compra-concepto" class="w-full p-2 border rounded" placeholder="Concepto de la factura (Ej: Factura #456)" required><input type="number" step="0.01" id="compra-monto" class="w-full p-2 border rounded" placeholder="Monto Total" required><div class="p-4 bg-[var(--color-bg-primary)] rounded-md"><p class="text-sm font-bold mb-2">Tipo de Compra:</p><input type="radio" name="compra_tipo" value="gasto" id="compra_gasto" checked onchange="document.getElementById('compra-gasto-div').style.display='block'; document.getElementById('compra-inventario-div').style.display='none';"> <label for="compra_gasto">Gasto General</label><br><div id="compra-gasto-div" class="mt-2"><select id="compra-gasto-categoria" class="w-full p-2 border rounded">${gastoOptions}</select></div><input type="radio" name="compra_tipo" value="inventario" id="compra_inventario" onchange="document.getElementById('compra-gasto-div').style.display='none'; document.getElementById('compra-inventario-div').style.display='block';"> <label for="compra_inventario">Inventario</label><div id="compra-inventario-div" style="display:none;" class="mt-2 space-y-2"><select id="compra-inventario-id" class="w-full p-2 border rounded">${inventarioOptions}</select><input type="number" step="1" id="compra-inventario-cantidad" class="w-full p-2 border rounded" placeholder="Cantidad comprada"></div></div><div class="p-4 bg-[var(--color-bg-primary)] rounded-md"><input type="checkbox" id="compra-pagada" onchange="document.getElementById('pago-directo-div').style.display=this.checked?'block':'none'"> <label for="compra-pagada">Pagada al momento</label><div id="pago-directo-div" style="display:none;" class="mt-2"><select id="compra-cuenta-nombre" class="w-full p-2 border rounded"><option value="">-- Pagar desde... --</option>${cuentaOptions}</select></div></div><div class="flex justify-end gap-2"><button type="button" class="adol-btn adol-btn-orange" onclick="AdolApp.closeModal()">Cancelar</button><button class="adol-btn" type="submit">Guardar Compra</button></div></form>`; this.showModal(content); },
+    guardarCompra(event) { event.preventDefault(); const transaccionId = this.transactionIdCounter++; const monto = Number(document.getElementById('compra-monto').value); const esPagada = document.getElementById('compra-pagada').checked; const tipoCompra = document.querySelector('input[name="compra_tipo"]:checked').value; if (tipoCompra === 'gasto') { const gasto = { id: transaccionId, fecha: document.getElementById('compra-fecha').value, descripcion: `${document.getElementById('compra-proveedor').value}: ${document.getElementById('compra-concepto').value}`, categoria: document.getElementById('compra-gasto-categoria').value, monto: monto, cuentaPago: esPagada ? document.getElementById('compra-cuenta-nombre').value : 'CXP' }; this.gastos.push(gasto); } else { const prodId = Number(document.getElementById('compra-inventario-id').value); const cantidad = Number(document.getElementById('compra-inventario-cantidad').value); if (!prodId || !cantidad || cantidad <= 0) { alert("Para compras de inventario, debe seleccionar un producto y una cantidad válida."); return; } this.findById(this.inventario, prodId).cantidad += cantidad; } if (esPagada) { const cuentaNombre = document.getElementById('compra-cuenta-nombre').value; if (!cuentaNombre) { alert("Debe seleccionar una cuenta para realizar el pago."); return; } const cuenta = this.cuentas.find(c => c.nombre === cuentaNombre); cuenta.saldo -= monto; this.movimientos.push({ fecha: document.getElementById('compra-fecha').value, tipo: 'Gasto/Compra', descripcion: `${document.getElementById('compra-proveedor').value}: ${document.getElementById('compra-concepto').value}`, monto: -monto, cuenta: cuentaNombre, transaccionId: transaccionId }); } else { this.cxp.push({ id: transaccionId, fecha: document.getElementById('compra-fecha').value, proveedor: document.getElementById('compra-proveedor').value, concepto: document.getElementById('compra-concepto').value, monto: monto, pagado: 0 }); } this.saveAll(); this.irModulo('cxp'); this.closeModal(); },
+    registrarPagoCXP(cxpId){ const cI=this.findById(this.cxp,cxpId),s=cI.monto-cI.pagado,cO=this.cuentas.map(c=>`<option value="${c.nombre}">${c.nombre}</option>`).join(''); const cont=`<div class="adol-title mb-4">Registrar Pago</div><p>Proveedor: <strong>${cI.proveedor}</strong> | Saldo: <strong>$${this.formatCurrency(s)}</strong></p><form onsubmit="AdolApp.guardarPagoCXP(event, ${cxpId})" class="space-y-4 mt-4"><input type="number" step="0.01" id="pago-monto" class="w-full p-2 border rounded" placeholder="Monto a Pagar" max="${s}" min="0.01" required><select id="pago-cuenta-nombre" class="w-full p-2 border rounded" required><option value="">-- Pagar desde Cuenta --</option>${cO}</select><div class="flex justify-end gap-2"><button type="button" class="adol-btn adol-btn-orange" onclick="AdolApp.closeModal()">Cancelar</button><button class="adol-btn" type="submit">Registrar Pago</button></div></form>`; this.showModal(cont); },
+    guardarPagoCXP(e,cxpId){ e.preventDefault(); const mP=Number(document.getElementById('pago-monto').value),cN=document.getElementById('pago-cuenta-nombre').value; if(mP>0){const cI=this.findById(this.cxp,cxpId),c=this.cuentas.find(c=>c.nombre===cN); cI.pagado+=mP; c.saldo-=mP; this.movimientos.push({fecha:this.getTodayDate(),tipo:'Pago CXP',descripcion:`Pago a ${cI.proveedor}`,monto:-mP,cuenta:c.nombre});} this.saveAll(); this.renderCXP(); this.closeModal(); },
+    exportarCXP_PDF() { const headers = ["Fecha", "Proveedor", "Concepto", "Monto", "Pagado", "Saldo"]; const data = this.cxp.map(c => [c.fecha, c.proveedor, c.concepto, this.formatCurrency(c.monto), this.formatCurrency(c.pagado), this.formatCurrency(c.monto - c.pagado)]); this.exportarTablaPDF("Listado de Cuentas por Pagar", headers, data, "listado_cxp"); },
+
+    // ===================== INVENTARIO =====================
+    renderInventario() { document.getElementById('inventario').innerHTML = `<div class="flex justify-between items-center"><div class="adol-title">Inventario</div><div><button class="adol-btn adol-btn-orange" onclick="AdolApp.exportarInventarioPDF()">Exportar a PDF</button><button class="adol-btn ml-2" onclick="AdolApp.abrirNuevoProducto()">+ Nuevo Producto</button></div></div><div class="adol-card overflow-auto"><table class="min-w-full text-sm"><thead><tr><th class="adol-mini-th">SKU</th><th class="adol-mini-th">Nombre</th><th class="adol-mini-th text-right">Cantidad</th><th class="adol-mini-th text-right">Costo Unit.</th><th class="adol-mini-th text-right">Valor Total</th><th class="adol-mini-th text-center">Acciones</th></tr></thead><tbody>${this.inventario.map(p=>`<tr><td class="adol-mini-td">${p.sku}</td><td class="adol-mini-td">${p.nombre}</td><td class="adol-mini-td text-right font-mono">${p.cantidad.toLocaleString()}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(p.costo)}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(p.cantidad*p.costo)}</td><td class="adol-mini-td text-center"><button class="text-blue-600 hover:underline" onclick="AdolApp.abrirEdicionProducto(${p.id})">Editar</button> | <button class="text-red-600 hover:underline" onclick="AdolApp.eliminarProducto(${p.id})">Eliminar</button></td></tr>`).join('')}</tbody></table></div>`; },
+    abrirNuevoProducto(pId=null){ const isE=pId!==null,p=isE?this.findById(this.inventario,pId):{}; const cont=`<div class="adol-title mb-4">${isE?'Editar':'Nuevo'} Producto</div><form onsubmit="AdolApp.guardarProducto(event, ${pId})" class="space-y-4"><input type="text" id="prod-sku" class="w-full p-2 border rounded" placeholder="SKU" value="${isE?p.sku:''}" required><input type="text" id="prod-nombre" class="w-full p-2 border rounded" placeholder="Nombre" value="${isE?p.nombre:''}" required><input type="number" step="1" id="prod-cantidad" class="w-full p-2 border rounded" placeholder="Cantidad" value="${isE?p.cantidad:'0'}" ${isE?'readonly':''} required><input type="number" step="0.01" id="prod-costo" class="w-full p-2 border rounded" placeholder="Costo Unitario" value="${isE?p.costo:'0'}" required>${isE?'<p class="text-xs text-gray-500">La cantidad se ajusta con Compras/Ventas.</p>':''}<div class="flex justify-end gap-2"><button type="button" class="adol-btn adol-btn-orange" onclick="AdolApp.closeModal()">Cancelar</button><button class="adol-btn" type="submit">Guardar</button></div></form>`; this.showModal(cont); },
+    abrirEdicionProducto(pId){this.abrirNuevoProducto(pId);},
+    guardarProducto(e,pId=null){e.preventDefault();const isE=pId!==null,pD={id:isE?pId:this.transactionIdCounter++,sku:document.getElementById('prod-sku').value,nombre:document.getElementById('prod-nombre').value,cantidad:Number(document.getElementById('prod-cantidad').value),costo:Number(document.getElementById('prod-costo').value)};if(isE){const idx=this.findIndexById(this.inventario,pId);this.inventario[idx]={...this.inventario[idx],sku:pD.sku,nombre:pD.nombre,costo:pD.costo};}else{this.inventario.push(pD);}this.saveAll();this.renderInventario();this.closeModal();},
+    eliminarProducto(pId){const pIdx=this.findIndexById(this.inventario,pId);if(pIdx===-1)return;const p=this.inventario[pIdx];if(p.cantidad>0&&!confirm(`ADVERTENCIA: Hay ${p.cantidad} unidades en stock. ¿Continuar?`))return;else if(!confirm("¿Seguro que quieres eliminar este producto?"))return;this.inventario.splice(pIdx,1);this.saveAll();this.renderInventario();},
+    exportarInventarioPDF() { const headers = ["SKU", "Nombre", "Cantidad", "Costo Unitario", "Valor Total"]; const data = this.inventario.map(p => [p.sku, p.nombre, p.cantidad, this.formatCurrency(p.costo), this.formatCurrency(p.cantidad * p.costo)]); this.exportarTablaPDF("Reporte de Inventario", headers, data, "reporte_inventario"); },
+
+    // ===================== REPORTES =====================
+    renderReportes(submodulo = 'menu') {
+        const el = document.getElementById('reportes');
+        const menuHTML = `<div class="adol-title">Reportes</div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><a onclick="AdolApp.irModulo('reportes', { submodulo: 'pnl' })" class="adol-card adol-card-clickable"><h3 class="font-bold text-lg mb-2">Estado de Resultados (P&L)</h3><p class="text-sm text-gray-500">Muestra ingresos, gastos y la utilidad neta.</p></a><a onclick="AdolApp.irModulo('reportes', { submodulo: 'diario' })" class="adol-card adol-card-clickable"><h3 class="font-bold text-lg mb-2">Diario de Transacciones</h3><p class="text-sm text-gray-500">Ver todas las transacciones financieras en orden cronológico.</p></a></div>`;
+        if (submodulo === 'pnl') { this.renderReportePNLDetallado(el); } 
+        else if (submodulo === 'diario') { this.renderReporteDiario(el); } 
+        else { el.innerHTML = menuHTML; }
+    },
+    renderReportePNLDetallado(container) {
+        const agruparPorCategoria = (transacciones, categorias) => {
+            const resultado = {};
+            categorias.forEach(cat => resultado[cat] = 0);
+            transacciones.forEach(t => {
+                if (resultado[t.categoria] !== undefined) { resultado[t.categoria] += t.monto; } 
+                else { if(!resultado['Sin Categoría']) resultado['Sin Categoría'] = 0; resultado['Sin Categoría'] += t.monto; }
+            });
+            return resultado;
+        };
+        const ingresosVentas = this.ventas.reduce((sum, v) => sum + v.monto, 0);
+        const ingresosOtrosAgrupados = agruparPorCategoria(this.otrosIngresos, this.categoriasIngresos);
+        const gastosAgrupados = agruparPorCategoria(this.gastos, this.categoriasGastos);
+        let totalIngresos = ingresosVentas;
+        let totalGastos = 0;
+        let ingresosHTML = `<tr><td class="adol-mini-td font-semibold">Venta de Productos</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(ingresosVentas)}</td></tr>`;
+        Object.keys(ingresosOtrosAgrupados).forEach(cat => { if (ingresosOtrosAgrupados[cat] > 0) { ingresosHTML += `<tr><td class="adol-mini-td">${cat}</td><td class="adol-mini-td text-right font-mono">$${this.formatCurrency(ingresosOtrosAgrupados[cat])}</td></tr>`; totalIngresos += ingresosOtrosAgrupados[cat]; }});
+        let gastosHTML = '';
+        Object.keys(gastosAgrupados).forEach(cat => { if (gastosAgrupados[cat] > 0) { gastosHTML += `<tr><td class="adol-mini-td">${cat}</td><td class="adol-mini-td text-right font-mono">-$${this.formatCurrency(gastosAgrupados[cat])}</td></tr>`; totalGastos += gastosAgrupados[cat]; }});
+        const resultadoNeto = totalIngresos - totalGastos;
+        container.innerHTML = `<div class="flex justify-between items-center"><div class="adol-title">Estado de Resultados</div><div><button class="adol-btn adol-btn-orange" onclick="AdolApp.exportarPNL_PDF()">Exportar a PDF</button><button class="adol-btn ml-2" onclick="AdolApp.irModulo('reportes')">Volver al Menú</button></div></div><div class="adol-card"><div class="space-y-6"><div><h3 class="adol-subtitle">Ingresos</h3><table class="min-w-full text-sm"><tbody>${ingresosHTML}</tbody><tfoot><tr class="border-t-2 border-[var(--color-border-accent)]"><td class="adol-mini-td font-bold">Total Ingresos</td><td class="adol-mini-td text-right font-bold font-mono">$${this.formatCurrency(totalIngresos)}</td></tr></tfoot></table></div><div><h3 class="adol-subtitle">Gastos</h3><table class="min-w-full text-sm"><tbody>${gastosHTML}</tbody><tfoot><tr class="border-t-2 border-[var(--color-border-accent)]"><td class="adol-mini-td font-bold">Total Gastos</td><td class="adol-mini-td text-right font-bold font-mono">-$${this.formatCurrency(totalGastos)}</td></tr></tfoot></table></div><div class="text-right font-bold text-lg pt-4 border-t-4 border-gray-300 dark:border-gray-600"><span>Resultado Neto: </span><span class="${resultadoNeto >= 0 ? 'adol-green' : 'adol-red'}">$${this.formatCurrency(resultadoNeto)}</span></div></div></div>`;
+    },
+    renderReporteDiario(container) {
+        container.innerHTML = `<div class="flex justify-between items-center"><div class="adol-title">Diario de Transacciones</div><div><button class="adol-btn adol-btn-orange" onclick="AdolApp.exportarDiarioPDF()">Exportar a PDF</button><button class="adol-btn ml-2" onclick="AdolApp.irModulo('reportes')">Volver al Menú</button></div></div><div class="adol-card"><div class="max-h-[60vh] overflow-auto"><table class="min-w-full text-xs"><thead class="sticky top-0 z-10"><tr><th class="adol-mini-th">Fecha</th><th class="adol-mini-th">Tipo</th><th class="adol-mini-th">Descripción</th><th class="adol-mini-th">Cuenta</th><th class="adol-mini-th text-right">Monto</th></tr></thead><tbody>${[...this.movimientos].reverse().map(m=>`<tr><td class="adol-mini-td">${m.fecha}</td><td class="adol-mini-td">${m.tipo}</td><td class="adol-mini-td">${m.descripcion}</td><td class="adol-mini-td">${m.cuenta}</td><td class="adol-mini-td text-right font-mono ${m.monto<0?'adol-red':'adol-green'}">$${this.formatCurrency(m.monto)}</td></tr>`).join('')}</tbody></table></div></div>`;
+    },
+    exportarDiarioPDF() { const headers = ["Fecha", "Tipo", "Descripción", "Cuenta", "Monto"]; const data = [...this.movimientos].reverse().map(m => [m.fecha, m.tipo, m.descripcion, m.cuenta, this.formatCurrency(m.monto)]); this.exportarTablaPDF("Diario de Transacciones", headers, data, "diario_transacciones"); },
+    exportarPNL_PDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const agruparPorCategoria = (transacciones, categorias) => { const r={}; categorias.forEach(c=>r[c]=0); transacciones.forEach(t=>{if(r[t.categoria]!==undefined){r[t.categoria]+=t.monto}else{if(!r['Sin Categoría'])r['Sin Categoría']=0;r['Sin Categoría']+=t.monto}}); return r; };
+        const iV=this.ventas.reduce((s,v)=>s+v.monto,0),iOA=agruparPorCategoria(this.otrosIngresos,this.categoriasIngresos),gA=agruparPorCategoria(this.gastos,this.categoriasGastos);
+        let tI=iV,tG=0;
+        const ingresosData=[['Venta de Productos',this.formatCurrency(iV)]];
+        Object.keys(iOA).forEach(c=>{if(iOA[c]>0){ingresosData.push([c,this.formatCurrency(iOA[c])]); tI+=iOA[c];}});
+        const gastosData=[];
+        Object.keys(gA).forEach(c=>{if(gA[c]>0){gastosData.push([c,`-${this.formatCurrency(gA[c])}`]); tG+=gA[c];}});
+        if(this.empresa.logo){ try { doc.addImage(this.empresa.logo, 'PNG', 14, 15, 20, 20); } catch (e) { console.log(e); } }
+        doc.setFontSize(20); doc.text(this.empresa.nombre, 40, 22);
+        doc.setFontSize(16); doc.text("Estado de Resultados", 14, 45);
+        doc.setFontSize(12); doc.text("Ingresos", 14, 60);
+        doc.autoTable({ startY: 62, head: [['Categoría', 'Monto']], body: ingresosData });
+        let finalY = doc.autoTable.previous.finalY;
+        doc.setFontSize(12); doc.text("Gastos", 14, finalY + 10);
+        doc.autoTable({ startY: finalY + 12, head: [['Categoría', 'Monto']], body: gastosData });
+        finalY = doc.autoTable.previous.finalY;
+        const resultadoNeto = tI - tG;
+        doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+        doc.text("Resultado Neto:", 130, finalY + 15);
+        doc.text(`$${this.formatCurrency(resultadoNeto)}`, 200, finalY + 15, { align: 'right' });
+        doc.save(`Estado_de_Resultados_${this.getTodayDate()}.pdf`);
+    },
+
+    // ===================== CONFIGURACIÓN =====================
+    renderConfig() {
+        const renderCategoryList = (tipo) => {
+            const arr = tipo === 'ingresos' ? this.categoriasIngresos : this.categoriasGastos;
+            return arr.map((cat, index) => `<div class="flex justify-between items-center p-2 border-b border-[var(--color-border-accent)]"><span>${cat}</span><div><button class="adol-blue hover:underline text-xs" onclick="AdolApp.editarCategoria('${tipo}', ${index})">Editar</button> | <button class="adol-red hover:underline text-xs" onclick="AdolApp.eliminarCategoria('${tipo}', ${index})">Eliminar</button></div></div>`).join('');
+        };
+        const savedTheme = localStorage.getItem("adol_theme") || 'default';
+        document.getElementById('config').innerHTML = `<div class="adol-title">Configuración</div><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><div class="adol-card mb-8"><h3 class="font-bold text-lg mb-4">Perfil de la Empresa</h3><form onsubmit="AdolApp.guardarPerfil(event)" class="space-y-4"><input id="conf-nombre" class="w-full p-2 border rounded" value="${this.empresa.nombre || ''}" placeholder="Nombre Empresa"><input id="conf-direccion" class="w-full p-2 border rounded" value="${this.empresa.direccion || ''}" placeholder="Dirección"><input id="conf-contacto" class="w-full p-2 border rounded" value="${this.empresa.contacto || ''}" placeholder="Email o Teléfono"><input id="conf-logo" class="w-full p-2 border rounded" value="${this.empresa.logo || ''}" placeholder="URL del Logo"><div class="flex justify-end"><button class="adol-btn" type="submit">Guardar Perfil</button></div></form></div><div class="adol-card"><h3 class="font-bold text-lg mb-4">Datos y Apariencia</h3><div class="space-y-4"><p class="text-sm">Realiza una copia de seguridad de todos tus datos.</p><button class="adol-btn adol-btn-orange" onclick="AdolApp.descargarBackup()">Descargar Backup (JSON)</button><div class="pt-4 border-t border-[var(--color-border-accent)]"><label for="theme-selector" class="block text-sm font-medium mb-1">Tema Visual</label><select id="theme-selector" onchange="AdolApp.cambiarTema(this.value)" class="w-full p-2 border rounded"><option value="default" ${savedTheme === 'default' ? 'selected' : ''}>Claro (Adol Blue)</option><option value="neon" ${savedTheme === 'neon' ? 'selected' : ''}>Oscuro (Neon)</option><option value="forest" ${savedTheme === 'forest' ? 'selected' : ''}>Oscuro (Forest)</option><option value="synthwave" ${savedTheme === 'synthwave' ? 'selected' : ''}>Oscuro (Synthwave)</option></select></div></div></div></div><div class="space-y-8"><div class="adol-card"><h3 class="font-bold text-lg mb-4">Categorías de Ingresos</h3><div class="mb-4">${renderCategoryList('ingresos')}</div><form onsubmit="AdolApp.agregarCategoria(event, 'ingresos')" class="flex gap-2"><input id="nueva-cat-ingreso" class="w-full p-2 border rounded" placeholder="Nueva categoría" required><button class="adol-btn" type="submit">Agregar</button></form></div><div class="adol-card"><h3 class="font-bold text-lg mb-4">Categorías de Gastos</h3><div class="mb-4">${renderCategoryList('gastos')}</div><form onsubmit="AdolApp.agregarCategoria(event, 'gastos')" class="flex gap-2"><input id="nueva-cat-gasto" class="w-full p-2 border rounded" placeholder="Nueva categoría" required><button class="adol-btn" type="submit">Agregar</button></form></div></div></div>`;
+    },
+    guardarPerfil(e){e.preventDefault();this.empresa.nombre=document.getElementById('conf-nombre').value;this.empresa.direccion=document.getElementById('conf-direccion').value;this.empresa.contacto=document.getElementById('conf-contacto').value;this.empresa.logo=document.getElementById('conf-logo').value;this.saveAll();this.actualizarPerfilEmpresa();alert('Perfil actualizado.');},
+    descargarBackup(){ const blob=new Blob([JSON.stringify({empresa:this.empresa,transactionIdCounter:this.transactionIdCounter,cuentas:this.cuentas,movimientos:this.movimientos,cxc:this.cxc,anticipos:this.anticipos,cxp:this.cxp,inventario:this.inventario,gastos:this.gastos,ventas:this.ventas,otrosIngresos:this.otrosIngresos,categoriasGastos:this.categoriasGastos,categoriasIngresos:this.categoriasIngresos},null,2)],{type:"application/json"}); const url=URL.createObjectURL(blob); let a=document.createElement('a');a.href=url;a.download=`adol_backup_${this.getTodayDate()}.json`;a.click();URL.revokeObjectURL(url); },
+    agregarCategoria(event, tipo) {
+        event.preventDefault();
+        const inputId = tipo === 'ingresos' ? 'nueva-cat-ingreso' : 'nueva-cat-gasto';
+        const nuevaCategoria = document.getElementById(inputId).value.trim();
+        if (nuevaCategoria) {
+            const arr = tipo === 'ingresos' ? this.categoriasIngresos : this.categoriasGastos;
+            if (arr.find(c => c.toLowerCase() === nuevaCategoria.toLowerCase())) { alert("Esa categoría ya existe."); return; }
+            arr.push(nuevaCategoria);
+            this.saveAll();
+            this.renderConfig();
+        }
+    },
+    editarCategoria(tipo, index) {
+        const arr = tipo === 'ingresos' ? this.categoriasIngresos : this.categoriasGastos;
+        const valorActual = arr[index];
+        const nuevoValor = prompt(`Editar categoría "${valorActual}":`, valorActual);
+        if (nuevoValor && nuevoValor.trim() !== '' && nuevoValor.trim() !== valorActual) {
+            arr[index] = nuevoValor.trim();
+            this.saveAll();
+            this.renderConfig();
+        }
+    },
+    eliminarCategoria(tipo, index) {
+        const arr = tipo === 'ingresos' ? this.categoriasIngresos : this.categoriasGastos;
+        const valor = arr[index];
+        if (confirm(`¿Seguro que quieres eliminar la categoría "${valor}"?`)) {
+            arr.splice(index, 1);
+            this.saveAll();
+            this.renderConfig();
+        }
+    },
+
+    // -- Funciones para TEMAS --
+    aplicarTema(themeName) {
+        document.documentElement.setAttribute('data-theme', themeName);
+    },
+    cambiarTema(themeName) {
+        this.aplicarTema(themeName);
+        localStorage.setItem("adol_theme", themeName);
+        if (document.getElementById('dashboard').style.display !== 'none') {
+            this.renderDashboardCharts();
+        }
+    },
+};
+
+window.onload = () => AdolApp.init();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('Service worker registrado:', reg))
+      .catch(err => console.error('Error al registrar service worker:', err));
+  });
+}
+</script></body>
+</html>
